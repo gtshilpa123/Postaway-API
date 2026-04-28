@@ -1,0 +1,659 @@
+{
+    "openapi":"3.0.0",
+    "info":{
+        "version":"1.0.0",
+        "description":"API for Postaway Social Media Project",
+        "title":"Postaway API"
+    },
+    "servers":[
+        {
+            "url":"http://localhost:3000"
+        }
+    ],
+    "components":{
+        "securitySchemes":{
+            "JWT":{
+                "in":"header",
+                "name":"Authorization",
+                "type":"apikey"
+            }
+        }
+    },
+    "paths":{
+        "/api/signup":{
+            "post":{
+              "tags": ["Users"],
+              "summary": "Signup",
+              "description": "Register a new user account",
+              "security": [{ "JWT": {} }],
+              "requestBody": {
+                "required": true,
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "type": "object",
+                      "properties": {
+                        "name":{
+                            "type":"string"
+                        },
+                        "email": {
+                          "type": "string"
+                        },
+                        "password": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "responses": {
+                "201": {
+                  "description": "CREATED"
+                },
+                "400": {
+                  "description": "Invalid user details"
+                }
+              }
+            }
+        },
+
+        "/api/signin":{
+            "post":{
+              "tags": ["Users"],
+              "summary": "Signin",
+              "description": "Log in as a user",
+              "requestBody": {
+                "required": true,
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "type": "object",
+                      "properties": {
+                        "email": {
+                          "type": "string"
+                        },
+                        "password": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "responses": {
+                "201": {
+                  "description": "Login successful"
+                },
+                "400": {
+                  "description": "Invalid login cresentials"
+                }
+              }
+            }
+        },
+
+        "/api/posts/all":{
+            "get":{
+              "tags": ["Posts"],
+              "summary": "Get Posts",
+              "description": "Get all posts",
+              "security": [{ "JWT": {} }],
+              "responses": {
+                "200": {
+                  "description": "Ok"
+                },
+                "500": {
+                  "description": "Server error"
+                }
+              }
+            }
+        },
+
+        "/api/posts/:id":{
+            "get":{
+              "tags": ["Posts"],
+              "summary": "Get one post",
+              "description": "Get specific post by ID",
+              "security": [{ "JWT": {} }],
+              "parameters": [
+                {
+                  "name": "id",
+                  "in": "path",
+                  "required": true,
+                  "schema": {
+                    "type": "string"
+                  }
+                }
+              ],
+              "responses": {
+                "200": { "description": "OK" },
+                "500":{"description":"Server error"},
+                "404": { "description": "Post not found" }
+              }
+            },
+            "delete":{
+              "tags": ["Posts"],
+              "summary": "Delete one post",
+              "description": "Delete a specific post by ID",
+              "security": [{ "JWT": {} }],
+              "parameters": [
+                {
+                  "name": "id",
+                  "in": "path",
+                  "required": true,
+                  "schema": {
+                    "type": "string"
+                  }
+                }
+              ],
+              "responses": {
+                "200": { "description": "OK" },
+                "500": { "description": "Server error" },
+                "404": { "description": "Post not found" }
+              }
+            },
+            "put":{
+              "tags": ["Posts"],
+              "summary": "Update one post",
+              "description": "Update a specific post by ID",
+              "security": [{ "JWT": {} }],
+              "parameters": [
+                {
+                  "name": "id",
+                  "in": "path",
+                  "required": true,
+                  "schema": {
+                    "type": "string"
+                  },
+                  "description":"ID of the post to update"
+                }
+              ],
+              "requestBody":{
+                "required":true,
+                "content":{
+                    "multipart/form-data":{
+                        "schema":{
+                            "type":"object",
+                            "properties":{
+                                "caption":{"type":"string"},
+                                "image":{"type":"string", "format":"binary"}
+                            }
+                        }
+                    }
+                }
+              },
+              "responses": {
+                "200": { "description": "OK",
+                "content":{
+                    "application/json":{
+                        "schema":{
+                            "type":"object",
+                            "properties":{
+                                "message":{
+                                    "type":"string"
+                                },
+                                "post":{
+                                    "type":"object",
+                                    "properties":{
+                                      "id": { "type": "string" },
+                                      "caption": { "type": "string" },
+                                      "imageUrl": { "type": "string" }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+                "500": { "description": "Server error" },
+                "404": { "description": "Post not found" }
+              }
+            }
+        },
+
+        "/api/posts/":{
+            "get":{
+              "tags": ["Posts"],
+              "summary": "Get posts",
+              "description": "Get posts based on user credentials",
+              "security": [{ "JWT": {} }],
+              "parameters":[
+                {
+                    "name":"userId",
+                    "in":"path",
+                    "required":false,
+                    "schema":{
+                        "type":"string"
+                    },
+                    "description":"filter by userId"
+                }
+              ],
+              "responses":{
+                "500": { "description": "Server error" },
+                "200": { "description": "OK" }
+              }
+            },
+
+            "post":{
+              "tags": ["Posts"],
+              "summary": "Create post",
+              "description": "Create a new post",
+              "security": [{ "JWT": {} }],
+                "requestBody":{
+                    "required":true,
+                    "content":{
+                        "multipart/form-data":{
+                            "schema":{
+                                "type":"object",
+                                "required":["caption","image"],
+                                "properties":{
+                                    "caption":{ "type":"string" },
+                                    "image":{"type":"string","format":"binary"}
+                                }
+                            }
+                        }
+                    }
+                },
+              "responses":{
+                "400":{"description":"Unauthorized"},
+                "500": { "description": "Server error" },
+                "201": { 
+                    "description": "Post is created",
+                    "content":{
+                        "application/json":{
+                            "schema":{
+                                "type":"object",
+                                "properties":{
+                                    "message":{"type":"string"},
+                                    "post":{
+                                        "type":"object",
+                                        "properties":{
+                                            "id":{"type":"integer"},
+                                            "userId":{"type":"integer"},
+                                            "caption":{"type":"string"},
+                                            "imageUrl":{"type":"string"}
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+              }
+            }
+        },
+
+        "/api/comments/:id":{
+            "get":{
+              "tags": ["Comments"],
+              "summary": "Get all comments",
+              "description": "Get all comments for a specific post",
+              "security": [{ "JWT": {} }],
+              "parameters":[
+                {
+                    "name":"postId",
+                    "in":"path",
+                    "required":true,
+                    "schema":{
+                        "type":"integer"
+                    },
+                    "description":"ID of the post whose comments are to be retrieved"
+                }
+              ],
+              "responses":{
+                "200":{
+                    "description":"OK",
+                    "content":{
+                        "application/json":{
+                            "schema":{
+                                "type":"object",
+                                "properties":{
+                                    "status":{"type":"string"},
+                                    "comments":{
+                                        "type":"array",
+                                        "items":{
+                                            "type":"object",
+                                            "properties":{
+                                                "id":{"type":"integer"},
+                                                "postId":{"type":"integer"},
+                                                "userId":{"type":"integer"},
+                                                "content":{
+                                                    "type":"string"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "500": { "description": "Server error" }
+              }
+            },
+
+            "post":{
+              "tags": ["Comments"],
+              "summary": "Add a new comment",
+              "description": "Add a new comment to a specific post",
+              "security": [{ "JWT": {} }],
+              "parameters":[
+                {
+                    "name":"postId",
+                    "in":"path",
+                    "required":true,
+                    "schema":{
+                        "type":"integer"
+                    },
+                    "description":"ID of the post to which the comment is being added"
+                }
+              ],
+              "requestBody":{
+                "required":true,
+                "content":{
+                    "application/json":{
+                        "schema":{
+                            "type":"object",
+                            "required":["content"],
+                            "properties":{
+                                "content":{"type":"string"}
+                            }
+                        }
+                    }
+                }
+              },
+              "responses":{
+                "201":{
+                    "description":"Comment created successfully",
+                    "content":{
+                        "application/json":{
+                            "schema":{
+                                "type":"object",
+                                "properties":{
+                                    "status":{"type":"string"},
+                                    "comment":{
+                                        "type":"object",
+                                        "properties":{
+                                            "id":{"type":"integer"},
+                                            "postId":{"type":"integer"},
+                                            "userId":{"type":"integer"},
+                                            "content":{"type":"string"}
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "400":{"description":"Missing content or userId"},
+                "500":{"description":"Internal server error"}
+              }
+            },
+
+            "delete":{
+              "tags": ["Comments"],
+              "summary": "Delete one comment",
+              "description": "Delete a specific comment by ID",
+              "security": [{ "JWT": {} }],
+              "parameters": [
+                {
+                  "name": "id",
+                  "in": "path",
+                  "required": true,
+                  "schema": {
+                    "type": "integer"
+                  },
+                  "description": "ID of the comment to delete"
+                }
+              ],
+              "responses":{
+                "200": {
+                  "description": "Comment deleted successfully",
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "type": "object",
+                        "properties": {
+                          "status": { "type": "string" },
+                          "message": { "type": "string" }
+                        }
+                      }
+                    }
+                  }
+                },
+                "404": {
+                  "description": "Comment not found",
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "type": "object",
+                        "properties": {
+                          "status": { "type": "string" },
+                          "message": { "type": "string" }
+                        }
+                      }
+                    }
+                  }
+                },
+                "500": {
+                  "description": "Internal server error",
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "type": "object",
+                        "properties": {
+                          "status": { "type": "string" },
+                          "message": { "type": "string" }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+
+            "put":{
+              "tags": ["Comments"],
+              "summary": "Update one comment",
+              "description": "Update a specific comment by ID",
+              "security": [{ "JWT": {} }],
+              "parameters": [
+                {
+                  "name": "id",
+                  "in": "path",
+                  "required": true,
+                  "schema": {
+                    "type": "integer"
+                  },
+                  "description": "ID of the comment to update"
+                }
+              ],
+              "requestBody": {
+                "required": true,
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "type": "object",
+                      "required": ["content"],
+                      "properties": {
+                        "content": { "type": "string" }
+                      }
+                    }
+                  }
+                }
+              },
+              "responses":{
+                "500": {
+                  "description": "Internal server error",
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "type": "object",
+                        "properties": {
+                          "status": { "type": "string" },
+                          "message": { "type": "string" }
+                        }
+                      }
+                    }
+                  }
+                },
+                "404": {
+                  "description": "Comment not found",
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "type": "object",
+                        "properties": {
+                          "status": { "type": "string" },
+                          "message": { "type": "string" }
+                        }
+                      }
+                    }
+                  }
+                },
+                "200": {
+                  "description": "Comment updated successfully",
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "type": "object",
+                        "properties": {
+                          "status": { "type": "string" },
+                          "comment": { 
+                            "type": "string",
+                            "properties":{
+                                "id":{"type":"integer"},
+                                "postId":{"type":"integer"},
+                                "userId":{"type":"integer"},
+                                "content":{"type":"string"}
+                            }
+                        }
+                        }
+                      }
+                    }
+                  }
+                },
+                "400":{
+                    "description":"Missing updating content",
+                    "content":{
+                        "application/json":{
+                            "schema":{
+                                "type":"object",
+                                "properties":{
+                                    "status":{"type":"string"},
+                                    "message":{"type":"string"}
+                                }
+                            }
+                        }
+                    }
+                }
+              }
+            }
+        },
+
+        "/api/likes/:postId":{
+            "get":{
+              "tags": ["Likes"],
+              "summary": "Get all likes",
+              "description": "Get all likes for a specific post",
+              "security": [{ "JWT": {} }],
+              "parameters":[
+                {
+                  "name": "postId",
+                  "in": "path",
+                  "required": true,
+                  "schema": {
+                    "type": "integer"
+                  },
+                  "description": "ID of the post to fetch likes for"
+                }
+              ],
+              "responses":{
+                "200": {
+                  "description": "List of likes for the given post",
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "type": "array",
+                        "items": {
+                            "type":"object",
+                            "properties":{
+                              "id": { "type": "integer" },
+                              "postId": { "type": "integer" },
+                              "userId": { "type": "integer" }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "500":{
+                    "description":"Failed to fetch likes",
+                    "content":{
+                        "application/json":{
+                            "schema":{
+                                "type":"object",
+                                "properties":{
+                                    "message":{"type":"string"}
+                                }
+                            }
+                        }
+                    }
+                  }
+                }
+              }
+        },
+
+        "/api/likes/toggle/:postId":{
+            "get":{
+              "tags": ["Likes"],
+              "summary": "Toggle like status",
+              "description": "Toggle like status for a specific post",
+              "security": [{ "JWT": {} }],
+              "parameters":[
+                {
+                  "name": "postId",
+                  "in": "path",
+                  "required": true,
+                  "schema": {
+                    "type": "integer"
+                  },
+                  "description": "ID of the post to toggle like for"
+                }
+              ],
+              "responses":{
+                "500": {
+                  "description": "Failed to toggle like",
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "type": "object",
+                        "properties": {
+                          "message": { "type": "string" }
+                        }
+                      }
+                    }
+                  }
+                },
+                "200": {
+                  "description": "Successfully toggled like status",
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "type": "object",
+                        "properties": {
+                            "totalLikes": { "type": "integer" },
+                            "postId": { "type": "integer" },
+                            "msg": { "type": "string" }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+        } 
+    }
+}
+
+

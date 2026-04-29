@@ -4,13 +4,15 @@
 import dotenv from "dotenv";
 dotenv.config();
 
+import fs from "fs";
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import swagger from "swagger-ui-express";
 
 import jwtAuth from "./src/middlewares/jwt.middleware.js";
-import apiDocs from "./swagger.json" assert { type: "json" };
+// import apiDocs from "./swagger.json" assert { type: "json" };
+const apiDocs = JSON.parse(fs.readFileSync("./swagger.json", "utf-8"));
 import { loggerMiddleware } from "./src/middlewares/logger.middleware.js";
 import { ApplicationError } from "./src/error-handler/applicationError.js";
 
